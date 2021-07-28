@@ -9,12 +9,19 @@
 }
 
 .layout{
-    margin-top:60px;
+    margin-top:10vh;
 }
 .main-heading{
-    font-size:65px;
+    font-size:60px;
     font-weight:900;
     color:var(--primary) !important;
+}
+.numbers{
+    font-size:40px;
+    font-weight:900;
+}
+h4{
+    font-weight:600 !important;
 }
 
 @media (max-width : 992px) {
@@ -27,4 +34,5 @@
         -o-background-size: cover;
         background-size:cover;
     }
+
 }
