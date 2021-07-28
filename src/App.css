@@ -1,0 +1,30 @@
+.App{
+    min-height:100vh;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    -webkit-background-size: contain;
+    -moz-background-size: contain;
+    -o-background-size: contain;
+    background-size:contain;
+}
+
+.layout{
+    margin-top:60px;
+}
+.main-heading{
+    font-size:65px;
+    font-weight:900;
+    color:var(--primary) !important;
+}
+
+@media (max-width : 992px) {
+    .main-heading{
+        font-size: 45px;;
+    }
+    .App{
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size:cover;
+    }
+}

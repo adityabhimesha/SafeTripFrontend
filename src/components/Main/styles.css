@@ -1,0 +1,10 @@
+.box{
+    border-radius: 50px;
+    padding:80px 70px;
+
+}
+.inside{
+    border-radius: 20px;
+    padding:10px 40px;
+    margin:10px 0px;
+}
