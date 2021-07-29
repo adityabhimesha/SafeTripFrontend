@@ -1,5 +1,7 @@
 import React from 'react';
-import {Button, Navbar, Nav} from 'react-bootstrap';
+import { Navbar, Nav} from 'react-bootstrap';
+import Wallet from '../../connection';
+
 
 class Header extends React.Component {
     render() {
@@ -15,7 +17,8 @@ class Header extends React.Component {
                 />{'  '}
                 <span className="align-self-center text-primary" style={{fontWeight:"800", marginLeft:"9px",}}>SAFE TRIP FINANCE</span>
             </Navbar.Brand>
-            <Nav.Link><Button className="custom-btn-1">CONNECT</Button></Nav.Link>
+            {/* <Nav.Link><Button onclick className="custom-btn-1">CONNECT</Button></Nav.Link> */}
+            <Nav.Link><Wallet></Wallet></Nav.Link>
 
             
       </Navbar>

@@ -2,9 +2,15 @@ $primary:#3F7276;
 $secondary:#FFFBDF; 
 $accent:#F7DA84;
 
+
 // Import Bootstrap and its default variables
 @import '~bootstrap/scss/bootstrap.scss';
 
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+
+body{
+    font-family: 'Montserrat', sans-serif;
+}
 .btn{
     border-radius:40px;
     padding:15px 30px;
@@ -18,4 +24,11 @@ $accent:#F7DA84;
     .navbar-brand > span{
         display:none;
     }
+}
+
+.connect{
+    background-color: $danger !important;
+    width:200px;
+    overflow:hidden;
+    text-overflow:ellipsis;
 }
