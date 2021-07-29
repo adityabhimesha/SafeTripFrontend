@@ -27,8 +27,9 @@ body{
 }
 
 .connect{
-    background-color: $danger !important;
-    width:200px;
+    background-color: $success !important;
+    width:170px;
+    font-weight:600;
     overflow:hidden;
     text-overflow:ellipsis;
 }
