@@ -1,8 +1,7 @@
 import React from 'react';
 import { Button, Navbar, Nav} from 'react-bootstrap';
 
-class Header extends React.Component {
-    render() {
+function Header({addr, wallet}) {
       return(
         <Navbar className="d-flex justify-content-between"variant="dark" expand="md">
             <Navbar.Brand href="/" className="d-flex" style={{color:"var(--color-text)" }}>
@@ -15,13 +14,10 @@ class Header extends React.Component {
                 />{'  '}
                 <span className="align-self-center text-primary" style={{fontWeight:"800", marginLeft:"9px",}}>SAFE TRIP FINANCE</span>
             </Navbar.Brand>
-            <Nav.Link><Button className="custom-btn-1">CONNECT</Button></Nav.Link>
-            {/* <Nav.Link><Wallet></Wallet></Nav.Link> */}
-
-            
+            {!addr && <Nav.Link onClick={wallet}><Button className="custom-btn-1">CONNECT</Button></Nav.Link>}
+            {addr && <> <h4 className="connect"> {addr}</h4></>}
       </Navbar>
       );
-    }
   }
 
 export default Header;
