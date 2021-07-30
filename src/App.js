@@ -28,6 +28,7 @@ class App extends React.Component {
     this.setWeb3 = this.setWeb3.bind(this)
     this.setContract = this.setContract.bind(this)
     this.stake = this.stake.bind(this)
+    this.unstake = this.unstake.bind(this)
     this.harvest = this.harvest.bind(this)
     this.setAddr = this.setAddr.bind(this)
     this.handleChange = this.handleChange.bind(this)
@@ -82,13 +83,15 @@ class App extends React.Component {
     this.setState({contract : tempContract}, async () => {
       var result = await this.state.contract.methods.rewardAPY().call();
       var total = await this.state.contract.methods.userInfo(this.state.addr).call();
+      var reward = await this.state.contract.methods.pendingReward(this.state.addr).call();
       this.setState({apy: result})
       
       var temp = total.amount / Math.pow(10, 18)
-      var tempPending = total.rewardDebt / Math.pow(10, 18)
+      var tempPending = reward / Math.pow(10, 18)
       this.setState({staked: temp}) 
-      this.setState({pendingReward: tempPending.toFixed(4)})
+      this.setState({pendingReward: tempPending.toFixed(6)})
       console.log("total staked ",temp)
+      console.log("reward ",tempPending)
     })
   }
 
@@ -119,7 +122,6 @@ class App extends React.Component {
 
 
     var amount = Web3.utils.toBN(String(Math.floor(this.state.amount)) + "0".repeat(18))
-    //var amount = this.state.amount;
     console.log(amount)
 
     var tokenContract = new this.state.web3.eth.Contract(token_abi, token_address)
@@ -143,12 +145,36 @@ class App extends React.Component {
     })  
   }
 
+  async unstake(){
+    if(this.state.addr === ''){
+      alert("Please Connect Wallet")
+      return;
+    }
+    if(this.state.amount === 0 || this.state.amount === ''){
+      alert("Please Enter An Amount More Than 1 STF")
+      return;
+    }
+
+
+    var amount = Web3.utils.toBN(String(Math.floor(this.state.amount)) + "0".repeat(18))
+    console.log(amount)
+    this.state.contract.methods.withdraw(amount, this.state.addr).send({from:this.state.addr})
+    .on('receipt', receipt => {
+      console.log("SUCCESS", receipt)
+    })
+    .on("error", (error, reciept) => {
+      console.log(error)
+    })
+
+  }
+
 
   async harvest(){
     if(this.state.addr === ''){
       alert("Please Connect Wallet")
       return;
     }
+
     var result = await this.state.contract.methods.harvest(this.state.addr).send({from:this.state.addr});
     console.log(result)
   }
@@ -169,7 +195,7 @@ class App extends React.Component {
               apy={this.state.apy}
               total={this.state.staked} 
               stake={this.stake}
-              re={this.pendingReward} 
+              unstake={this.unstake}
               harvest={this.harvest} 
               pendingReward={this.state.pendingReward}
               amount={this.handleChange}>

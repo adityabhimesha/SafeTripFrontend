@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {Button} from 'react-bootstrap';
 import '../Main/styles.css';
 
-function Main({apy, total,stake, re, harvest,pendingReward, amount}) {
+function Main({apy, total,stake,unstake, harvest,pendingReward, amount}) {
 
 
       return(
@@ -25,7 +25,7 @@ function Main({apy, total,stake, re, harvest,pendingReward, amount}) {
                 </div>
                 <div className="d-flex justify-content-start mt-3">   
                     <Button className="stake" onClick={stake} variant="primary">Stake </Button>
-                    <Button className="stake" onClick={re} style={{marginLeft:"15px",}} variant="secondary">Unstake</Button>
+                    <Button className="stake" onClick={unstake} style={{marginLeft:"15px",}} variant="secondary">Unstake</Button>
                 </div>
                 
 
