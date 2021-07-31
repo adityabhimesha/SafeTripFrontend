@@ -15,5 +15,9 @@
         margin-top:70px;
         margin-bottom:80px;
     }
+    .numbers{
+        text-align: center !important;
+        font-size:30px;
+    }
     
 }
