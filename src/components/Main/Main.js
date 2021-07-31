@@ -38,7 +38,7 @@ function Main({apy, total,stake,unstake, harvest,pendingReward, amount}) {
                         <h3 className="numbers" style={{textAlign:"right"}}>{total} STF</h3>
                     </div>
                     <div className="inside bg-secondary pb-3 pt-3">
-                        <h4>STF EARNED</h4>
+                        <h4>STF REWARD</h4>
                         <h3 className="numbers" style={{textAlign:"right"}}>{pendingReward}</h3>
                         <div className="d-flex justify-content-center">
                             <Button onClick={harvest} className="stake" variant="primary">Collect</Button>
