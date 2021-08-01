@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Navbar, Nav} from 'react-bootstrap';
 
-function Header({addr, wallet}) {
+function Header({addr, wallet, disconnectWallet}) {
       return(
         <Navbar className="d-flex justify-content-between"variant="dark" expand="md">
             <Navbar.Brand href="/" className="d-flex" style={{color:"var(--color-text)" }}>
@@ -15,7 +15,7 @@ function Header({addr, wallet}) {
                 <span className="align-self-center text-primary" style={{fontWeight:"800", marginLeft:"9px",}}>SAFE TRIP FINANCE</span>
             </Navbar.Brand>
             {!addr && <Nav.Link onClick={wallet}><Button className="custom-btn-1">CONNECT</Button></Nav.Link>}
-            {addr && <> <h4 className="connect"> {addr}</h4></>}
+            {addr && <> <Button onClick={disconnectWallet} className="connect btn-danger"> {addr}</Button></>}
       </Navbar>
       );
   }

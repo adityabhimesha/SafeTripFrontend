@@ -1,14 +1,15 @@
 import './App.css';
 import Header from './components/Navbar/Navbar'
 import './custom.scss';
-import {Container} from 'react-bootstrap';
+import {Container, Modal, Button} from 'react-bootstrap';
 import Main from "./components/Main/Main";
 import Web3 from 'web3';
 import React from 'react';
 import {contract_addr, abi, token_address, token_abi} from './config';
-
+import Web3Modal from "web3modal";
+import WalletConnectProvider from "@walletconnect/web3-provider";
 import { ToastContainer, toast } from 'react-toastify';
-  import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 class App extends React.Component {
@@ -25,9 +26,13 @@ class App extends React.Component {
       pendingReward:0,
       addr:"",
       amount:0,
+      show_modal:false,
     }
 
+  
+
     this.connectWallet = this.connectWallet.bind(this)
+    this.disconnectWallet = this.disconnectWallet.bind(this)
     this.setWeb3 = this.setWeb3.bind(this)
     this.setContract = this.setContract.bind(this)
     this.stake = this.stake.bind(this)
@@ -36,45 +41,93 @@ class App extends React.Component {
     this.setAddr = this.setAddr.bind(this)
     this.handleChange = this.handleChange.bind(this)
     this.update = this.update.bind(this)
+    this.handleClose = this.handleClose.bind(this)
+    this.handleShow = this.handleShow.bind(this)
 
   }
+  handleClose(){
+    this.setState({show_modal : false});
+  }
+  handleShow(){
+    this.setState({show_modal : true})
+  }
   
-  setAddr(accounts){
-    this.notify('Account Changed', 'info')
-    this.setState({addr : accounts[0]})
+  setAddr(account, web3){
+    if(this.state.addr !== ''){
+      this.notify('Account Changed', 'info')
+    }
+    this.setState({addr : account}, () => {
+      if(this.state.addr !== ''){
+        this.setWeb3(web3)
+      }
+      
+    })
     console.log("addr changed")
   }
-  
+
+  async disconnectWallet(){
+    if(this.provider.close){
+      await this.provider.close()
+    }
+    this.setState({addr : ''})
+    this.setState({web3 : undefined})
+  }
 
   async connectWallet() {
+  
 
-    if (window.ethereum) {
-        
-        try{
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            this.setState({addr: accounts[0]})
-            const tempWeb3 = new Web3(window.ethereum);
-            this.setWeb3(tempWeb3)
-        }
-        catch{
-          this.notify('Please Allow Access To Wallet')
-          console.log("USER ACCESS DENIED")
-          return;
-        }
-          
+  const providerOptions = {
+    metamask: {
+      display: {
+        name: "Injected",
+        description: "Connect with the provider in your Browser"
+      },
+      package: null
+    },
+    walletconnect: {
+      package: WalletConnectProvider, // required
+      options: {
+        rpc: {
+          56 : 'https://bsc-dataseed1.defibit.io/'
+        },
+        network: 'binance'
+      }
     }
-    else if (window.web3) {
-        const tempWeb3 = window.web3;
-        console.log('Injected web3 detected.');
-        this.setWeb3(tempWeb3)
-    }
-    else {
-        const provider = new Web3.providers.HttpProvider('http://127.0.0.1:9545');
-        const tempWeb3 = new Web3(provider);
-        this.notify('No Web3 Provider Detected!', 'error')
-        this.notify('Please Use Chrome or Any Browser Supporting Wallets', 'dark')
-        this.setWeb3(tempWeb3)
-    }
+  };
+
+  const web3Modal = new Web3Modal({
+    cacheProvider: true, // optional
+    disableInjectedProvider: false,
+    providerOptions // required
+  })
+  web3Modal.clearCachedProvider();
+  //var provider
+
+  this.provider = await web3Modal.connect();
+  const web3 = new Web3(this.provider);
+  this.provider.on('error', e => {
+    this.notify('Error : '+e, 'error')
+  });
+  this.provider.on('end', e => console.error('WS End', e));
+
+  this.provider.on('disconnect', (error) => {
+    web3Modal.clearCachedProvider();
+    this.setState({addr : ''}, () => {
+      this.notify('Disconnected Wallet!', 'error')
+    })
+  });
+  this.provider.on('connect', (info) => {
+    this.notify(info, 'success')
+    console.log('CONNECTED');
+  });
+  this.provider.on("accountsChanged", (accounts) => {
+    this.setAddr(accounts[0], web3)
+  });
+
+  const addr = await web3.eth.getAccounts();
+  console.log(addr)
+  this.setAddr(addr[0], web3)
+  
     
   }
 
@@ -115,22 +168,6 @@ class App extends React.Component {
       console.log("reward ",tempPending)
   }
 
-
-  async componentDidMount(){
-    this.connectWallet();
-
-    if(window.ethereum){
-      
-      window.ethereum.on('accountsChanged', this.setAddr)
-
-      window.ethereum.on('disconnected', () => {
-        console.log("disconnected")
-        this.notify('Disconnected Wallet', 'info')
-      })
-      
-    }
-
-  }
   handleChange(event){
     this.setState({amount : event.target.value})
   }
@@ -148,9 +185,10 @@ class App extends React.Component {
     var amount = Web3.utils.toBN(String(Math.floor(this.state.amount)) + "0".repeat(18))
     var tokenContract = new this.state.web3.eth.Contract(token_abi, token_address)
 
+    this.notify('Approve Transaction To Allow STF Spending', 'dark')
+
     tokenContract.methods.approve(contract_addr, amount).send({from:this.state.addr})
     .on('receipt', receipt => {
-      this.notify('Approve Transaction To Allow STF Spending', 'dark')
       this.notify('Please Wait Till The Transaction Suceeds', 'info')
       this.state.contract.methods.deposit(amount, this.state.addr).send({from : this.state.addr})
         .on('receipt', receipt => {
@@ -238,11 +276,33 @@ class App extends React.Component {
     return (
 
       <div className="App" style={{backgroundImage:`url('bg-main-2.svg')`}}>
-        <ToastContainer position="bottom-center" hideProgressBar={false} autoClose={5000}/>
+        <ToastContainer position="top-center" hideProgressBar={false} autoClose={5000}/>
         <Container>
-            <Header addr={this.state.addr} wallet={this.connectWallet}/>
-  
+            <Header addr={this.state.addr} wallet={this.connectWallet} disconnectWallet={this.disconnectWallet}/>
             <div className="layout">
+            <Modal show={this.state.show_modal} onHide={this.handleClose}>
+              <Modal.Header>
+                <Modal.Title>Steps To Stake Your STF</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                  <Container className="d-flex flex-column align-items-center">
+                    <h5 style={{fontSize:"20px"}}>1. Approve Transaction To Enable Spending Of STFs</h5>
+                    <Button>Approve</Button>
+
+                    <h5 style={{fontSize:"20px", marginTop:"15px"}}>2. After Transaction Is Successful, Now Deposit</h5>
+                    <Button disabled >Deposit</Button>
+                    
+                  </Container>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={this.handleClose}>
+                  Close
+                </Button>
+                <Button className="ml-4" variant="primary" onClick={this.handleClose}>
+                  Save Changes
+                </Button>
+              </Modal.Footer>
+            </Modal>
               <Main 
               apy={this.state.apy}
               total={this.state.staked} 
