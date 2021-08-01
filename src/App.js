@@ -106,7 +106,7 @@ class App extends React.Component {
   this.provider = await web3Modal.connect();
   const web3 = new Web3(this.provider);
   this.provider.on('error', e => {
-    this.notify('Error : '+e, 'error')
+    console.log(e)
   });
   this.provider.on('end', e => console.error('WS End', e));
 
@@ -272,7 +272,6 @@ class App extends React.Component {
   }
   
   render(){
-    //console.log(this.state.contract)
     return (
 
       <div className="App" style={{backgroundImage:`url('bg-main-2.svg')`}}>
